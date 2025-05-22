@@ -26,4 +26,6 @@ public partial class VillaList
     public DateTime? UpdateDate { get; set; }
 
     public virtual ICollection<VillaNumber> VillaNumbers { get; set; } = new List<VillaNumber>();
+
+    public virtual ICollection<VillaNumberv2> VillaNumberv2s { get; set; } = new List<VillaNumberv2>();
 }

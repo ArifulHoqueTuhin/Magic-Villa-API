@@ -9,7 +9,7 @@ namespace MagicVillaApi.Repository.IRepository
 
         Task<LoginResponseDTO> Login (LoginRequestDTO loginRequestDTO);
 
-        Task<User> Registration (RegistrationRequestDTO registrationRequestDTO);
+        Task<LocalUser> Registration (RegistrationRequestDTO registrationRequestDTO);
 
 
     }

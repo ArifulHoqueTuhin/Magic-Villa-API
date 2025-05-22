@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace MagicVillaApi.Models;
 
-public partial class MagicVillaContext : DbContext
+public partial class MagicVillaContext : IdentityDbContext<ApplicationUser>
 {
     public MagicVillaContext()
     {
@@ -15,26 +16,30 @@ public partial class MagicVillaContext : DbContext
     {
     }
 
-    public virtual DbSet<User> Users { get; set; }
+    //public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; } 
+    public virtual DbSet<LocalUser> LocalUsers { get; set; }
 
     public virtual DbSet<VillaList> VillaLists { get; set; }
 
     public virtual DbSet<VillaNumber> VillaNumbers { get; set; }
 
+    public virtual DbSet<VillaNumberv2> VillaNumberv2s { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-
-        }
 
     }
 #warning 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>(entity =>
+        //base.OnModelCreating(modelBuilder);
+       
+
+        modelBuilder.Entity<LocalUser>(entity =>
         {
-            entity.ToTable("User");
+            
+            entity.HasKey(e => e.Id).HasName("PK_User");
+            
 
             entity.Property(e => e.Email)
                 .HasMaxLength(50)
@@ -72,20 +77,33 @@ public partial class MagicVillaContext : DbContext
 
         modelBuilder.Entity<VillaNumber>(entity =>
         {
-            entity.HasKey(e => e.VillaId);
+            entity.HasKey(e => e.VillaNo);
 
             entity.ToTable("Villa Number");
 
-            entity.Property(e => e.VillaId).HasColumnName("Villa_Id");
+            entity.Property(e => e.VillaNo).HasColumnName("Villa_No");
             entity.Property(e => e.VillaDetails)
                 .HasMaxLength(1000)
                 .IsUnicode(false)
                 .HasColumnName("Villa_Details");
+            entity.Property(e => e.VillaId).HasColumnName("Villa_Id");
 
-            entity.HasOne(d => d.IdNavigation).WithMany(p => p.VillaNumbers)
-                .HasForeignKey(d => d.Id)
+            entity.HasOne(d => d.Villa).WithMany(p => p.VillaNumbers)
+                .HasForeignKey(d => d.VillaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Villa Number_VillaList");
+        });
+
+        modelBuilder.Entity<VillaNumberv2>(entity =>
+        {
+            entity.HasKey(e => new { e.VillaNo, e.VillaId }).HasName("PK_VillaNumber");
+
+            entity.ToTable("VillaNumberv2");
+
+            entity.HasOne(d => d.Villa).WithMany(p => p.VillaNumberv2s)
+                .HasForeignKey(d => d.VillaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_VillaNumber_VillaList");
         });
 
         OnModelCreatingPartial(modelBuilder);

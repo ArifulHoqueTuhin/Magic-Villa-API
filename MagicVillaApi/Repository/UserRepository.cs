@@ -22,7 +22,9 @@ namespace MagicVillaApi.Repository
 
         public bool IsUniqueEmail(string email)
         {
-            var User = _dbData.Users.FirstOrDefault(u => u.Email == email);
+            //var User = _dbData.Users.FirstOrDefault(u => u.Email == email);
+
+            var User = _dbData.LocalUsers.FirstOrDefault(u => u.Email == email);
 
             if (User == null)
             {
@@ -35,7 +37,7 @@ namespace MagicVillaApi.Repository
 
         public async Task<LoginResponseDTO> Login (LoginRequestDTO loginRequestDTO)
         {
-            var user = await _dbData.Users.FirstOrDefaultAsync(u => u.Email == loginRequestDTO.Email && u.Password == loginRequestDTO.Password);
+            var user = await _dbData.LocalUsers.FirstOrDefaultAsync(u => u.Email == loginRequestDTO.Email && u.Password == loginRequestDTO.Password);
 
             if (user == null)
             {
@@ -88,10 +90,10 @@ namespace MagicVillaApi.Repository
         
 
 
-        public async Task<User> Registration(RegistrationRequestDTO registrationRequestDTO)
+        public async Task<LocalUser> Registration(RegistrationRequestDTO registrationRequestDTO)
 
         {
-            User NewUser = new()
+            LocalUser NewUser = new()
             {
                 UserName = registrationRequestDTO.UserName,
 
@@ -102,7 +104,7 @@ namespace MagicVillaApi.Repository
                 Roles = registrationRequestDTO.Roles
             };
 
-            _dbData.Users.Add(NewUser);
+            _dbData.LocalUsers.Add(NewUser);
 
             await _dbData.SaveChangesAsync();
 
