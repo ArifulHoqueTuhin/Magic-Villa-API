@@ -7,9 +7,9 @@ namespace MagicVillaApi.Repository.IRepository
     {
         bool IsUniqueEmail (string email);
 
-        Task<LoginResponseDTO> Login (LoginRequestDTO loginRequestDTO);
+        Task<TokenDTO> Login (LoginRequestDTO loginRequestDTO);
 
-        Task<User> Registration (RegistrationRequestDTO registrationRequestDTO);
+        Task<RegistrationResponseDto> Registration (RegistrationRequestDTO registrationRequestDTO);
 
 
     }

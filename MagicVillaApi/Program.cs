@@ -4,11 +4,15 @@ using MagicVillaApi.Repository;
 using MagicVillaApi.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-using Microsoft.AspNetCore.Authentication.JwtBearer; 
-using Microsoft.IdentityModel.Tokens; 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 using Microsoft.OpenApi.Models;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using MagicVillaApi.Data;
 
 
 
@@ -16,19 +20,43 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddNewtonsoftJson();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+//builder.Services.AddControllers().AddNewtonsoftJson();
+ //Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 var provider = builder.Services.BuildServiceProvider();
 var config = provider.GetRequiredService<IConfiguration>();
 
 builder.Services.AddDbContext<MagicVillaContext>(item => item.UseSqlServer(config.GetConnectionString("dbcs")));
 
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<MagicVillaContext>();
+
+builder.Services.AddResponseCaching();
+
 builder.Services.AddScoped<IvillaRepository, VillaRepository>();
 builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+
 builder.Services.AddAutoMapper(typeof(MappingConfig));
+
+
+
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true; // optional but helpful
+})
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV"; // e.g., v1, v2, v2.1
+    options.SubstituteApiVersionInUrl = true;
+});
+
+
 
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secrets");
 
@@ -50,6 +78,17 @@ builder.Services.AddAuthentication(x =>
             ValidateAudience = false
         };
     });
+
+
+builder.Services.AddControllers(option => {
+    //option.CacheProfiles.Add("Default30",
+    //   new CacheProfile()
+    //   {
+    //       Duration = 30
+    //   });
+    //option.ReturnHttpNotAcceptable=true;
+}).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
+
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -83,6 +122,43 @@ options.AddSecurityRequirement(new OpenApiSecurityRequirement()
         }
     });
 
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1.0",
+        Title = "Magic Villa V1",
+        Description = "API to manage Villa",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Dotnetmastery",
+            Url = new Uri("https://dotnetmastery.com")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://example.com/license")
+        }
+    });
+
+
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Version = "v2.0",
+        Title = "Magic Villa V2",
+        Description = "API to manage Villa",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Dotnetmastery",
+            Url = new Uri("https://dotnetmastery.com")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://example.com/license")
+        }
+    });
+
 });
 
 var app = builder.Build();
@@ -91,8 +167,16 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    //app.UseSwaggerUI();
+
+    app.UseSwaggerUI(options => {
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
+       
+    });
 }
+
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 

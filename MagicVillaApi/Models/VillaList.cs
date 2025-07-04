@@ -17,7 +17,9 @@ public partial class VillaList
 
     public int Occupancy { get; set; }
 
-    public string ImageUrl { get; set; } = null!;
+    public string? ImageUrl { get; set; } 
+
+    public string? ImageLocalPath { get; set; }
 
     public string Amenity { get; set; } = null!;
 
@@ -26,4 +28,6 @@ public partial class VillaList
     public DateTime? UpdateDate { get; set; }
 
     public virtual ICollection<VillaNumber> VillaNumbers { get; set; } = new List<VillaNumber>();
+
+   
 }

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Asp.Versioning;
 using MagicVillaApi.Models;
 using MagicVillaApi.Models.DTO;
 using MagicVillaApi.Repository.IRepository;
@@ -7,9 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MagicVillaApi.Controllers
 {
-    [Route("api/userAuth")]
 
+    [Route("api/v{version:apiVersion}/userAuth")]
     [ApiController]
+
+    //[ApiVersionNeutral]
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
@@ -24,12 +27,15 @@ namespace MagicVillaApi.Controllers
         }
 
         [HttpPost("login")]
+        [ApiVersion("1.0")]
+        [ApiVersion("2.0")]
+
 
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
-            var loginResponse = await _userRepo.Login(model);
+            var tokenDto = await _userRepo.Login(model);
 
-            if (loginResponse.user == null || string.IsNullOrEmpty(loginResponse.Token))
+            if (tokenDto == null || string.IsNullOrEmpty(tokenDto.AcessToken))
             {
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
                 _apiResponse.IsSuccess = false;
@@ -41,14 +47,25 @@ namespace MagicVillaApi.Controllers
             _apiResponse.StatusCode = HttpStatusCode.OK;
             _apiResponse.IsSuccess = true;
 
-            _apiResponse.Result = loginResponse;
+            _apiResponse.Result = tokenDto;
             return Ok(_apiResponse);
         }
 
 
         [HttpPost("register")]
+        [ApiVersion("1.0")]
+        [ApiVersion("2.0")]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO model)
         {
+
+            if (model == null || string.IsNullOrWhiteSpace(model.Email))
+            {
+                _apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                _apiResponse.IsSuccess = false;
+                _apiResponse.ErrorMessage.Add("Invalid registration data");
+                return BadRequest(_apiResponse);
+            }
+
             bool ifUserEmailUnique = _userRepo.IsUniqueEmail(model.Email);
 
             if (!ifUserEmailUnique)
@@ -77,4 +94,6 @@ namespace MagicVillaApi.Controllers
             return Ok(_apiResponse);
         }
     }
+
+
 }
