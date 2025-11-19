@@ -1,8 +1,8 @@
-﻿using MagicVillaApi.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Linq;
 using MagicVillaApi.Repository.IRepository;
+using MagicVillaApi.Data;
 
 namespace MagicVillaApi.Repository
 {

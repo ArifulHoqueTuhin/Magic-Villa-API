@@ -43,6 +43,8 @@ namespace MagicVillaApi.Controllers.v1
 
             var villas = await _dbVillaNumber.GetAllAsync(includeProperties: "Villa");
 
+
+
             _apiResponse.Result = _mapper.Map<List<VillaNumberDto>>(villas);
             _apiResponse.StatusCode = HttpStatusCode.OK;
 

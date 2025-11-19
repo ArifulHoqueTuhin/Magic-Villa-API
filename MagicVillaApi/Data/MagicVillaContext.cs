@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using MagicVillaApi.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace MagicVillaApi.Models;
+namespace MagicVillaApi.Data;
 
-public partial class MagicVillaContext : IdentityDbContext<ApplicationUser>
+public partial class MagicVillaContext : DbContext
 {
     public MagicVillaContext()
     {
@@ -33,13 +34,13 @@ public partial class MagicVillaContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //base.OnModelCreating(modelBuilder);
-       
+
 
         modelBuilder.Entity<LocalUser>(entity =>
         {
-            
+
             entity.HasKey(e => e.Id).HasName("PK_User");
-            
+
 
             entity.Property(e => e.Email)
                 .HasMaxLength(50)

@@ -1,4 +1,5 @@
-﻿using MagicVillaApi.Models;
+﻿using MagicVillaApi.Data;
+using MagicVillaApi.Models;
 using MagicVillaApi.Repository.IRepository;
 
 namespace MagicVillaApi.Repository

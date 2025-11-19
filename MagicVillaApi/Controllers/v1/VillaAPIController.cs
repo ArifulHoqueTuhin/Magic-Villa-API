@@ -121,7 +121,7 @@ namespace MagicVillaApi.Controllers.v1
                 _apiResponse.IsSuccess = false;
 
                 return NotFound(_apiResponse);
-                
+
             }
 
             _apiResponse.Result = _mapper.Map<VillaDto>(villa);
@@ -130,6 +130,10 @@ namespace MagicVillaApi.Controllers.v1
 
             return Ok(_apiResponse);
         }
+
+
+
+
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -259,6 +263,8 @@ namespace MagicVillaApi.Controllers.v1
             {
                 return BadRequest();
             }
+           
+            
             var villa = await _dbVilla.GetAsync(u => u.Id == id, tracked: false);
 
             VillaUpdateDto villaDTO = _mapper.Map<VillaUpdateDto>(villa);

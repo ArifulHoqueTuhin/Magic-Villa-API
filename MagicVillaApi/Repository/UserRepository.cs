@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using MagicVillaApi.Data;
 using MagicVillaApi.Models;
 using MagicVillaApi.Models.DTO;
 using MagicVillaApi.Repository.IRepository;
