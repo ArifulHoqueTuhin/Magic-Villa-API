@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Linq;
 using MagicVillaApi.Repository.IRepository;
 using MagicVillaApi.Data;
 
@@ -10,7 +9,6 @@ namespace MagicVillaApi.Repository
     {
         private readonly MagicVillaContext _dbData;
         internal DbSet<T> _dbSet;
-
         public Repository(MagicVillaContext dbData)
         {
             _dbData = dbData;
@@ -32,9 +30,7 @@ namespace MagicVillaApi.Repository
                 {
                     pageSize = 100;
                 }
-                //skip0.take(5)
-                //page number- 2     || page size -5
-                //skip(5*(1)) take(5)
+
                 query = query.Skip(pageSize * (pageNumber - 1)).Take(pageSize);
             }
 
@@ -46,7 +42,7 @@ namespace MagicVillaApi.Repository
                 }
             }
 
-                return await query.ToListAsync();
+               return await query.ToListAsync();
         }
 
         public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeProperties = null)
@@ -54,18 +50,14 @@ namespace MagicVillaApi.Repository
             IQueryable<T> query = _dbSet;
 
             if (!tracked)
-
             {
                 query = query.AsNoTracking();
             }
-
 
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-
-            //return await query.FirstOrDefaultAsync();
 
             if (!string.IsNullOrEmpty(includeProperties))
             {
@@ -77,10 +69,7 @@ namespace MagicVillaApi.Repository
 
             return await query.FirstOrDefaultAsync() ?? default!;
 
-
-
         }
-
 
         public async Task CreateAsync(T entity)
         {
@@ -88,13 +77,11 @@ namespace MagicVillaApi.Repository
             await SaveAsync();
         }
 
-
         public async Task DeleteAsync(T entity)
         {
             _dbSet.Remove(entity);
             await SaveAsync();
         }
-
 
         public async Task SaveAsync()
         {

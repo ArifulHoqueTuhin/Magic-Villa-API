@@ -1,6 +1,6 @@
 ﻿namespace MagicVillaApi.Models.DTO
 {
-    public class VillaNumberCreateDTOv2
+    public class VillaNumberCreateDtov2
     {
         public int VillaNo { get; set; }
         public int VillaId { get; set; }

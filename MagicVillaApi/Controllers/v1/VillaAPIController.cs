@@ -4,35 +4,26 @@ using MagicVillaApi.Models;
 using MagicVillaApi.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Azure;
 using Asp.Versioning;
-using System.Text.Json;
-using Newtonsoft.Json;
-using System.Text.Json.Serialization;
 
 namespace MagicVillaApi.Controllers.v1
 {
-    [Route("api/v{version:apiversion}/VillaAPI")]
+    [Route("api/v{version:apiversion}/VillaApi")]
     [ApiController]
     [ApiVersion("1.0")]
     public class VillaAPIController : ControllerBase
     {
 
         private readonly ILogger<VillaAPIController> _logger;
-        //private readonly MagicVillaContext _dbData;
         private readonly IMapper _mapper;
         private readonly IvillaRepository _dbVilla;
-        protected APIResponse _apiResponse;
-
-
+        protected ApiResponse _apiResponse;
 
         public VillaAPIController(ILogger<VillaAPIController> logger, IMapper mapper, IvillaRepository dbVilla)
         {
             _logger = logger;
-
             _mapper = mapper;
             _dbVilla = dbVilla;
             _apiResponse = new();
@@ -43,16 +34,13 @@ namespace MagicVillaApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        //[ResponseCache(Duration = 30)]
         [ResponseCache(CacheProfileName = "Default30")]
 
-        public async Task<ActionResult<APIResponse>> GetVilla([FromQuery(Name ="filteroccupancy")] int? occupancy ,[FromQuery] string? search, int pageSize = 0, int pageNumber = 1)
+        public async Task<ActionResult<ApiResponse>> GetVilla([FromQuery(Name ="filteroccupancy")] int? occupancy ,[FromQuery] string? search, int pageSize = 0, int pageNumber = 1)
         {
             try
             {
                 _logger.LogInformation("Fetching villa list...");
-
-                //var villas = await _dbVilla.GetAllAsync();
 
                 var villas = new List<VillaList>();
 
@@ -75,14 +63,7 @@ namespace MagicVillaApi.Controllers.v1
 
                 Pagination pagination = new() { PageNumber = pageNumber, PageSize = pageSize };
 
-                //Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
-
-                //Response.Headers.Add("X-Pagination", System.Text.Json.JsonSerializer.Serialize(pagination));
-
                 Response.Headers.Append("X-Pagination", System.Text.Json.JsonSerializer.Serialize(pagination));
-
-
-
                 _apiResponse.Result = _mapper.Map<List<VillaDto>>(villas);
                 _apiResponse.StatusCode = HttpStatusCode.OK;
 
@@ -103,25 +84,21 @@ namespace MagicVillaApi.Controllers.v1
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ResponseCache(Duration = 30)]
+        [ResponseCache(Duration = 30)]
         //[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 
-        public async Task<ActionResult<APIResponse>> GetVillaById(int id)
+        public async Task<ActionResult<ApiResponse>> GetVillaById(int id)
         {
             var villa = await _dbVilla.GetAsync(u => u.Id == id);
 
             if (villa == null)
             {
                 _logger.LogError($"Villa with ID {id} not found.");
-
                 _apiResponse.StatusCode = HttpStatusCode.NotFound;
                 _apiResponse.IsSuccess = false;
-
                 return NotFound(_apiResponse);
-
             }
 
             _apiResponse.Result = _mapper.Map<VillaDto>(villa);
@@ -131,15 +108,11 @@ namespace MagicVillaApi.Controllers.v1
             return Ok(_apiResponse);
         }
 
-
-
-
-
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateVilla([FromBody] VillaCreateDto createDto)
+        public async Task<ActionResult<ApiResponse>> CreateVilla([FromBody] VillaCreateDto createDto)
         {
             if (createDto == null)
             {
@@ -147,7 +120,7 @@ namespace MagicVillaApi.Controllers.v1
                 return BadRequest(_apiResponse);
             }
 
-            var existingVilla = await _dbVilla.GetAsync(u => u.Name.ToLower() == createDto.Name.ToLower());
+            var existingVilla = await _dbVilla.GetAsync(u => u.Name.ToLower() == createDto.Name!.ToLower());
 
             if (existingVilla != null)
             {
@@ -157,29 +130,9 @@ namespace MagicVillaApi.Controllers.v1
 
 
             VillaList NewVilla = _mapper.Map<VillaList>(createDto);
-
-
-            //Villa model = new()
-            //{
-            //    Amenity = createDTO.Amenity,
-            //    Details = createDTO.Details,
-            //    ImageUrl = createDTO.ImageUrl,
-            //    Name = createDTO.Name,
-            //    Occupancy = createDTO.Occupancy,
-            //    Rate = createDTO.Rate,
-            //    Sqft = createDTO.Sqft
-            //};
-
-
-
-
             await _dbVilla.CreateAsync(NewVilla);
-
             _apiResponse.Result = _mapper.Map<VillaDto>(NewVilla);
             _apiResponse.StatusCode = HttpStatusCode.Created;
-
-
-
             return CreatedAtRoute("GetVillaById", new { id = NewVilla.Id }, _apiResponse);
         }
 
@@ -188,22 +141,18 @@ namespace MagicVillaApi.Controllers.v1
 
         [HttpDelete("{id:int}", Name = "DeleteVilla")]
         [Authorize(Roles = "CUSTOM")]
-
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> DeleteVilla(int id)
+        public async Task<ActionResult<ApiResponse>> DeleteVilla(int id)
         {
-
 
             if (id == 0)
             {
                 return BadRequest();
             }
-
 
             var DeleteVilla = await _dbVilla.GetAsync(u => u.Id == id);
 
@@ -212,44 +161,28 @@ namespace MagicVillaApi.Controllers.v1
                 return NotFound();
             }
 
-
             await _dbVilla.DeleteAsync(DeleteVilla);
             _apiResponse.StatusCode = HttpStatusCode.NoContent;
             _apiResponse.IsSuccess = true;
-
-
-
             return Ok(_apiResponse);
         }
 
 
         [HttpPut("{id:int}", Name = "UpdateVilla")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-
-
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> UpdateVilla(int id, [FromBody] VillaUpdateDto updateDto)
+        public async Task<ActionResult<ApiResponse>> UpdateVilla(int id, [FromBody] VillaUpdateDto updateDto)
         {
-
-
-
             if (updateDto == null || id != updateDto.Id)
             {
                 return BadRequest();
             }
 
-
             VillaList UpdateVilla = _mapper.Map<VillaList>(updateDto);
-
             await _dbVilla.UpdateAsync(UpdateVilla);
-
             _apiResponse.StatusCode = HttpStatusCode.NoContent;
             _apiResponse.IsSuccess = true;
-
-
-
             return Ok(_apiResponse);
-
 
         }
 
@@ -284,6 +217,7 @@ namespace MagicVillaApi.Controllers.v1
             {
                 return BadRequest(ModelState);
             }
+
             return NoContent();
         }
 

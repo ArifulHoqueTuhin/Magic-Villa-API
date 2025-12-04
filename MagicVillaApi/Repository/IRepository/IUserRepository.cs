@@ -6,11 +6,8 @@ namespace MagicVillaApi.Repository.IRepository
     public interface IUserRepository
     {
         bool IsUniqueEmail (string email);
-
-        Task<LoginResponseDTO> Login (LoginRequestDTO loginRequestDTO);
-
-        Task<LocalUser> Registration (RegistrationRequestDTO registrationRequestDTO);
-
+        Task<LoginResponseDto> Login (LoginRequestDto loginRequestDTO);
+        Task<LocalUser> Registration (RegistrationRequestDto registrationRequestDTO);
 
     }
 }

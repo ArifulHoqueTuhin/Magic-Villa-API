@@ -3,7 +3,6 @@ using Asp.Versioning;
 using MagicVillaApi.Models;
 using MagicVillaApi.Models.DTO;
 using MagicVillaApi.Repository.IRepository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MagicVillaApi.Controllers
@@ -11,27 +10,21 @@ namespace MagicVillaApi.Controllers
 
     [Route("api/v{version:apiVersion}/userAuth")]
     [ApiController]
-
     //[ApiVersionNeutral]
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
-        protected APIResponse _apiResponse;
-
+        protected ApiResponse _apiResponse;
         public UserController(IUserRepository userRepo)
         {
             _userRepo = userRepo;
             this._apiResponse = new();
-
-
         }
 
         [HttpPost("login")]
         [ApiVersion("1.0")]
         [ApiVersion("2.0")]
-
-
-        public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
         {
             var loginResponse = await _userRepo.Login(model);
 
@@ -39,14 +32,12 @@ namespace MagicVillaApi.Controllers
             {
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
                 _apiResponse.IsSuccess = false;
-
                 _apiResponse.ErrorMessage.Add("username or password is incorrect");
                 return BadRequest(_apiResponse);
             }
 
             _apiResponse.StatusCode = HttpStatusCode.OK;
             _apiResponse.IsSuccess = true;
-
             _apiResponse.Result = loginResponse;
             return Ok(_apiResponse);
         }
@@ -55,7 +46,7 @@ namespace MagicVillaApi.Controllers
         [HttpPost("register")]
         [ApiVersion("1.0")]
         [ApiVersion("2.0")]
-        public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO model)
+        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto model)
         {
 
             if (model == null || string.IsNullOrWhiteSpace(model.Email))
@@ -72,7 +63,6 @@ namespace MagicVillaApi.Controllers
             {
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
                 _apiResponse.IsSuccess = false;
-
                 _apiResponse.ErrorMessage.Add("email already exist");
                 return BadRequest(_apiResponse);
 
@@ -84,16 +74,13 @@ namespace MagicVillaApi.Controllers
             {
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
                 _apiResponse.IsSuccess = false;
-
                 _apiResponse.ErrorMessage.Add("registration failed");
                 return BadRequest(_apiResponse);
             }
 
             _apiResponse.StatusCode = HttpStatusCode.OK;
-
             return Ok(_apiResponse);
         }
     }
-
 
 }

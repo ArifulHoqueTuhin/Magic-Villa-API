@@ -2,33 +2,18 @@ using MagicVillaApi;
 using MagicVillaApi.Repository;
 using MagicVillaApi.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
 using Microsoft.OpenApi.Models;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 using MagicVillaApi.Data;
-
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers().AddNewtonsoftJson();
-//Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-var provider = builder.Services.BuildServiceProvider();
-var config = provider.GetRequiredService<IConfiguration>();
-
-builder.Services.AddDbContext<MagicVillaContext>(item => item.UseSqlServer(config.GetConnectionString("dbcs")));
-
-//builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-//    .AddEntityFrameworkStores<MagicVillaContext>();
+builder.Services.AddDbContext<MagicVillaContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("dbcs")));
 
 builder.Services.AddResponseCaching();
 
@@ -37,17 +22,13 @@ builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 builder.Services.AddScoped<IVillaNumberRepositoryv2, VillaNumberRepositoryv2>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-
 builder.Services.AddAutoMapper(typeof(MappingConfig));
-
-
-
 
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
     options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true; // optional but helpful
+    options.ReportApiVersions = true;
 })
 .AddApiExplorer(options =>
 {
@@ -55,18 +36,15 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
-
-
-var key = builder.Configuration.GetValue<string>("ApiSettings:Secrets");
+var key = builder.Configuration.GetValue<string>("ApiSettings:Secrets") ?? throw new InvalidOperationException("ApiSettings:Secrets is not configured!");
 
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-
 })
-    .AddJwtBearer(x => {
+    .AddJwtBearer(x =>
+    {
         x.RequireHttpsMetadata = false;
         x.SaveToken = true;
         x.TokenValidationParameters = new TokenValidationParameters
@@ -79,31 +57,32 @@ builder.Services.AddAuthentication(x =>
     });
 
 
-builder.Services.AddControllers(option => {
+builder.Services.AddControllers(option =>
+{
     option.CacheProfiles.Add("Default30",
        new CacheProfile()
        {
            Duration = 30
        });
-    //option.ReturnHttpNotAcceptable=true;
-}).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
-
+    option.ReturnHttpNotAcceptable = true;
+}).AddNewtonsoftJson()
+.AddXmlDataContractSerializerFormatters();
 
 
 builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddSwaggerGen(options => {
-options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+builder.Services.AddSwaggerGen(options =>
 {
-    Description =
-        "JWT Authorization header using the Bearer scheme. \r\n\r\n " +
-        "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" +
-        "Example: \"Bearer 12345abcdef\"",
-    Name = "Authorization",
-    In = ParameterLocation.Header,
-    Scheme = "Bearer"
-});
-options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description =
+            "JWT Authorization header using the Bearer scheme. \r\n\r\n " +
+            "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" +
+            "Example: \"Bearer 12345abcdef\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
         {
             new OpenApiSecurityScheme
@@ -162,13 +141,11 @@ options.AddSecurityRequirement(new OpenApiSecurityRequirement()
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    //app.UseSwaggerUI();
-
-    app.UseSwaggerUI(options => {
+    app.UseSwaggerUI(options =>
+    {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
         options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
     });

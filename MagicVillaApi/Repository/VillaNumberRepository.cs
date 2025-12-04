@@ -8,17 +8,13 @@ namespace MagicVillaApi.Repository
     {
     
         private readonly MagicVillaContext _dbData;
-
         public VillaNumberRepository(MagicVillaContext dbData) : base(dbData)
         {
             _dbData = dbData;
         }
 
-
         public async Task<VillaNumber> UpdateAsync(VillaNumber entity)
-        {
-            //entity.UpdateDate = DateTime.Now;
-
+        {        
             _dbData.VillaNumbers.Update(entity);
             await _dbData.SaveChangesAsync();
             return entity;

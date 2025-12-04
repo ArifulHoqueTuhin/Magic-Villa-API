@@ -4,7 +4,7 @@ using MagicVillaApi.Models.DTO;
 
 namespace MagicVillaApi
 {
-    public class MappingConfig :Profile
+    public class MappingConfig : Profile
     {
         public MappingConfig()
         {
@@ -18,12 +18,8 @@ namespace MagicVillaApi
             CreateMap<VillaNumber, VillaNumberUpdateDto>().ReverseMap();
             
             CreateMap<VillaNumberv2, VilaNumberDtov2>().ReverseMap();
-            CreateMap<VillaNumberv2, VillaNumberCreateDTOv2>().ReverseMap();
-            CreateMap<VillaNumberv2, VillaNumberUpdateDTOv2>().ReverseMap();
-
-
-
-
+            CreateMap<VillaNumberv2, VillaNumberCreateDtov2>().ReverseMap();
+            CreateMap<VillaNumberv2, VillaNumberUpdateDtov2>().ReverseMap();
 
         }
     }
