@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 #ignore local setting
 appsettings.Development.json
+
+#ignore roduction setting
+appsettings.Production.json
