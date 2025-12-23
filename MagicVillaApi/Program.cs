@@ -64,7 +64,6 @@ builder.Services.AddControllers(option =>
        {
            Duration = 30
        });
-    option.ReturnHttpNotAcceptable = true;
 }).AddNewtonsoftJson()
 .AddXmlDataContractSerializerFormatters();
 
@@ -148,6 +147,16 @@ if (app.Environment.IsDevelopment())
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
         options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
+    });
+}
+else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
+        options.RoutePrefix = "";
     });
 }
 

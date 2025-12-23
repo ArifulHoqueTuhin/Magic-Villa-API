@@ -32,4 +32,8 @@
     <None Include="Repository\IRepository\IVillaNumberRepositoryv2.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>
